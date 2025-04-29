@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student College Animation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background">
+    <div class="college-gate">🏫</div>
+    <div class="student" id="student">🎒</div>
+  </div>
+
+  <div class="container" id="login-container">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Enter your name">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div class="container" id="welcome-container" style="display: none;">
+    <h2 id="welcome-message"></h2>
+    <div class="video-container">
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+        title="YouTube video" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
