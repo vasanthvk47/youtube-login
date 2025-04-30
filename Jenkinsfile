@@ -16,7 +16,7 @@ pipeline {
         stage('Verify Minikube Environment Before Build') {
             steps {
                 script {
-                    // Check if kubectl is correctly configured
+                    // Check if kubectl is correctly configured and verify Minikube context
                     sh "kubectl version --client"
                     sh "kubectl config current-context"
                 }
@@ -56,10 +56,19 @@ pipeline {
             }
         }
 
+        stage('Set Minikube Context') {
+            steps {
+                script {
+                    // Ensure the Minikube context is used for deployment
+                    sh "kubectl config use-context minikube"
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Apply deployment and service configurations
+                    // Apply deployment and service configurations to Minikube
                     sh "kubectl apply -f k8s/deployment.yaml --validate=false --insecure-skip-tls-verify=true"
                     sh "kubectl apply -f k8s/service.yaml --validate=false --insecure-skip-tls-verify=true"
                 }
@@ -73,8 +82,21 @@ pipeline {
                     sh "kubectl get pods"
                     sh "kubectl get deployments"
                     sh "kubectl get services"
+
+                    // Check if the pod is running
+                    sh "kubectl rollout status deployment/student-college-login-animation"
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment was successful!'
+        }
+
+        failure {
+            echo 'Deployment failed. Check the logs for errors.'
         }
     }
 }
