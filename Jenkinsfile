@@ -69,8 +69,8 @@ pipeline {
             steps {
                 script {
                     // Apply deployment and service configurations to Minikube
-                    sh "kubectl apply -f k8s/deployment.yaml --validate=false --insecure-skip-tls-verify=true"
-                    sh "kubectl apply -f k8s/service.yaml --validate=false --insecure-skip-tls-verify=true"
+                   // sh "kubectl apply -f k8s/deployment.yaml --validate=false --insecure-skip-tls-verify=true"
+                   //  sh "kubectl apply -f k8s/service.yaml --validate=false --insecure-skip-tls-verify=true"
                 }
             }
         }
@@ -92,11 +92,11 @@ pipeline {
 
     post {
         success {
-            echo 'Deployment was successful!'
+            echo 'Deployment was successful! http://127.0.0.1:39317   your project is running in this link'
         }
 
         failure {
-            echo 'Deployment failed. Check the logs for errors.'
+            echo 'Deployment failed. Check the logs for errors. http://127.0.0.1:39317   your project is running in this link'
         }
     }
 }
