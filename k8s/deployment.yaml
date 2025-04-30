@@ -6,11 +6,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: student-app
+      app: youtube-login-app 
   template:
     metadata:
       labels:
-        app: student-app
+        app: youtube-login-app 
     spec:
       containers:
       - name: student-app
