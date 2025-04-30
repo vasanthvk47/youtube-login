@@ -16,6 +16,7 @@ pipeline {
         stage('Verify Minikube Environment Before Build') {
             steps {
                 script {
+                    // Check if kubectl is correctly configured
                     sh "kubectl version --client"
                     sh "kubectl config current-context"
                 }
@@ -25,6 +26,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Build the Docker image
                     sh "docker build -t $IMAGE_NAME:$TAG ."
                 }
             }
@@ -34,6 +36,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-password', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     script {
+                        // Log in to Docker Hub and push the image
                         sh '''
                             echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
                             docker push "$IMAGE_NAME:$TAG"
@@ -46,18 +49,9 @@ pipeline {
         stage('Verify Minikube Environment After Build') {
             steps {
                 script {
+                    // Verify kubectl setup after the build
                     sh "kubectl version --client"
                     sh "kubectl config current-context"
-                }
-            }
-        }
-
-        stage('Deploy Permissions to Kubernetes') {
-            steps {
-                script {
-                    // Apply ClusterRole and ClusterRoleBinding if needed
-                    sh "kubectl apply -f k8s/cluster-role.yaml --validate=false --insecure-skip-tls-verify=true"
-                    sh "kubectl apply -f k8s/cluster-role-binding.yaml --validate=false --insecure-skip-tls-verify=true"
                 }
             }
         }
@@ -65,8 +59,20 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
+                    // Apply deployment and service configurations
                     sh "kubectl apply -f k8s/deployment.yaml --validate=false --insecure-skip-tls-verify=true"
                     sh "kubectl apply -f k8s/service.yaml --validate=false --insecure-skip-tls-verify=true"
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    // Verify if the pod is running and the deployment was successful
+                    sh "kubectl get pods"
+                    sh "kubectl get deployments"
+                    sh "kubectl get services"
                 }
             }
         }
