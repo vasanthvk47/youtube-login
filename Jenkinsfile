@@ -5,7 +5,9 @@ pipeline {
         DOCKERHUB_USERNAME = 'vasanth4747'
         DOCKERHUB_PASSWORD = 'vasanth@47'
         IMAGE_NAME = 'student-college-login-animation'
-        KUBECONFIG = '/home/vasanth47/.kube/config'
+        DOCKER_REPO = 'docker.io'
+        K8S_CLUSTER = 'minikube' // Assuming you are using Minikube
+        KUBECONFIG = '/home/vasanth47/.kube/config' // Path to your Minikube kubeconfig
     }
 
     stages {
@@ -40,7 +42,9 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying to Kubernetes...'
-                    sh 'kubectl apply -f /home/vasanth47/youtube-login-app/k8s/deployment.yaml --insecure-skip-tls-verify=true'
+                    
+                    // Apply the deployment to Minikube (using the KUBECONFIG environment variable)
+                    sh 'kubectl --kubeconfig=${KUBECONFIG} apply -f k8s/deployment.yaml --insecure-skip-tls-verify=true'
                 }
             }
         }
@@ -49,6 +53,8 @@ pipeline {
             steps {
                 script {
                     echo 'Retrieving Minikube service URL...'
+                    
+                    // Get the service URL from Minikube
                     def serviceURL = sh(script: 'minikube service youtube-login-app-service --url', returnStdout: true).trim()
                     echo "The service is available at: ${serviceURL}"
                 }
