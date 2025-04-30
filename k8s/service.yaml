@@ -7,7 +7,7 @@ spec:
     app: youtube-login-app  
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
-      nodePort: 30056
+      port: 80         # Service port (to expose externally)
+      targetPort: 2020  # Updated target port inside the container
+      nodePort: 30056   # External port for NodePort
   type: NodePort
