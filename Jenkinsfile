@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_USERNAME = 'vasanth4747'
+        DOCKERHUB_PASSWORD = credentials('dockerhub-password') // Make sure this is defined in Jenkins credentials
         IMAGE_NAME = 'student-college-login-animation'
         DOCKER_REPO = 'docker.io'
         K8S_CLUSTER = 'minikube' // Assuming you are using Minikube
@@ -28,9 +29,7 @@ pipeline {
             steps {
                 script {
                     echo 'Logging in to Docker Hub...'
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-password', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
-                    }
+                    sh 'echo ${DOCKERHUB_PASSWORD} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin'
 
                     echo 'Pushing Docker image to Docker Hub...'
                     sh 'docker push ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:latest'
@@ -42,10 +41,9 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying to Kubernetes...'
-                    sh '''
-                        kubectl config use-context ${K8S_CLUSTER}
-                        kubectl apply -f k8s/deployment.yaml --insecure-skip-tls-verify=true
-                    '''
+                    
+                    // Disabling TLS certificate validation for Minikube
+                    sh 'kubectl apply -f k8s/deployment.yaml --insecure-skip-tls-verify=true'
                 }
             }
         }
@@ -54,7 +52,7 @@ pipeline {
             steps {
                 script {
                     echo 'Verifying Docker image...'
-                    // Add commands for verification if needed (e.g., checking the deployed container, etc.)
+                    // Add commands for verification if needed
                 }
             }
         }
