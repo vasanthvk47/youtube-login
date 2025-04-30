@@ -2,6 +2,8 @@ pipeline {
     agent any
 
     environment {
+        DOCKERHUB_USERNAME = 'vasanth4747'
+        DOCKERHUB_PASSWORD = 'vasanth@47'
         IMAGE_NAME = 'student-college-login-animation'
     }
 
@@ -16,7 +18,7 @@ pipeline {
             steps {
                 script {
                     echo 'Building Docker image...'
-                    sh 'docker build -t vasanth4747/${IMAGE_NAME}:latest .'
+                    sh 'docker build -t ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:latest .'
                 }
             }
         }
@@ -24,11 +26,11 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    echo 'Logging in and pushing to Docker Hub...'
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
-                        sh 'docker push $DOCKERHUB_USERNAME/' + IMAGE_NAME + ':latest'
-                    }
+                    echo 'Logging in to Docker Hub...'
+                    sh 'echo ${DOCKERHUB_PASSWORD} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin'
+
+                    echo 'Pushing Docker image to Docker Hub...'
+                    sh 'docker push ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:latest'
                 }
             }
         }
