@@ -43,7 +43,7 @@ pipeline {
                     echo 'Deploying to Kubernetes...'
                     
                     // Disabling TLS certificate validation for Minikube
-                    sh 'kubectl apply -f k8s/deployment.yaml --insecure-skip-tls-verify=true'
+                    sh 'kubectl apply -f k8s/deployment.yaml --insecure-skip-tls-verify=false'
                 }
             }
         }
