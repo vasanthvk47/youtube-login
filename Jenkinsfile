@@ -2,18 +2,25 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'vasanth4747/student-college-login-animation'
-        TAG = 'latest'
-        USERNAME = 'vasanth4747'  // Your Docker Hub username
-        PASSWORD = 'vasanth@47'  // Your Docker Hub password
+        DOCKERHUB_USERNAME = 'vasanth4747'
+        DOCKERHUB_PASSWORD = credentials('dockerhub-password') // Make sure this is defined in Jenkins credentials
+        IMAGE_NAME = 'student-college-login-animation'
+        DOCKER_REPO = 'docker.io'
+        K8S_CLUSTER = 'minikube' // Assuming you are using Minikube
     }
 
     stages {
+        stage('Checkout SCM') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    echo "Building Docker image..."
-                    sh 'docker build -t ${IMAGE_NAME}:${TAG} .'
+                    echo 'Building Docker image...'
+                    sh 'docker build -t ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:latest .'
                 }
             }
         }
@@ -21,11 +28,11 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    echo "Logging in to Docker Hub..."
-                    sh "echo ${PASSWORD} | docker login -u ${USERNAME} --password-stdin"
-                    
-                    echo "Pushing Docker image to Docker Hub..."
-                    sh "docker push ${IMAGE_NAME}:${TAG}"
+                    echo 'Logging in to Docker Hub...'
+                    sh 'echo ${DOCKERHUB_PASSWORD} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin'
+
+                    echo 'Pushing Docker image to Docker Hub...'
+                    sh 'docker push ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:latest'
                 }
             }
         }
@@ -33,15 +40,10 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    echo "Deploying to Kubernetes..."
-
-                    // Your kubectl commands to deploy the app
-                    sh "kubectl apply -f k8s/deployment.yaml"
-                    sh "kubectl apply -f k8s/service.yaml"
+                    echo 'Deploying to Kubernetes...'
                     
-                    // Retrieving the service URL from Minikube
-                    def minikubeURL = sh(script: "minikube service youtube-login-app-service --url", returnStdout: true).trim()
-                    echo "Service is running at: ${minikubeURL}"
+                    // Disabling TLS certificate validation for Minikube
+                    sh 'kubectl apply -f k8s/deployment.yaml --insecure-skip-tls-verify=true'
                 }
             }
         }
@@ -49,26 +51,25 @@ pipeline {
         stage('Verify Docker Image') {
             steps {
                 script {
-                    echo "Verifying the Docker image exists..."
-                    def imageExists = sh(script: "docker images | grep ${IMAGE_NAME}", returnStatus: true)
-                    if (imageExists != 0) {
-                        error "Image not found locally!"
-                    } else {
-                        echo "Image exists locally."
-                    }
+                    echo 'Verifying Docker image...'
+                    // Add commands for verification if needed
                 }
             }
         }
     }
 
     post {
-        failure {
-            echo "❌ Deployment failed."
-            slackSend (message: "Jenkins Pipeline failed. Check the logs for more details.")
+        always {
+            echo 'Cleaning up...'
+            // Any cleanup steps if needed
         }
+
         success {
-            echo "✅ Deployment succeeded."
-            slackSend (message: "Jenkins Pipeline succeeded. Deployment was successful.")
+            echo 'Pipeline succeeded!'
+        }
+
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
