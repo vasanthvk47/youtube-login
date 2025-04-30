@@ -12,14 +12,15 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/vasanthvk47/student-college-animation.git'
             }
         }
-        stage('Verify Minikube Environment') {
-        steps {
-            script {
-                sh "kubectl version --client"
-                sh "kubectl config current-context"
+
+        stage('Verify Minikube Environment Before Build') {
+            steps {
+                script {
+                    sh "kubectl version --client"
+                    sh "kubectl config current-context"
+                }
             }
         }
-    }
 
         stage('Build Docker Image') {
             steps {
@@ -41,7 +42,8 @@ pipeline {
                 }
             }
         }
-                stage('Verify Minikube Environment') {
+
+        stage('Verify Minikube Environment After Build') {
             steps {
                 script {
                     sh "kubectl version --client"
