@@ -30,6 +30,22 @@ pipeline {
             }
         }
 
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    echo "Deploying to Kubernetes..."
+
+                    // Your kubectl commands to deploy the app
+                    sh "kubectl apply -f deployment.yaml"
+                    sh "kubectl apply -f service.yaml"
+                    
+                    // Retrieving the service URL from Minikube
+                    def minikubeURL = sh(script: "minikube service youtube-login-app-service --url", returnStdout: true).trim()
+                    echo "Service is running at: ${minikubeURL}"
+                }
+            }
+        }
+
         stage('Verify Docker Image') {
             steps {
                 script {
