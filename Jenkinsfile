@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_USERNAME = 'vasanth4747'
-        DOCKERHUB_PASSWORD = credentials('dockerhub-password') // Make sure this is defined in Jenkins credentials
+        DOCKERHUB_PASSWORD = 'vasanth@47' // Make sure this is defined in Jenkins credentials
         IMAGE_NAME = 'student-college-login-animation'
         DOCKER_REPO = 'docker.io'
         K8S_CLUSTER = 'minikube' // Assuming you are using Minikube
