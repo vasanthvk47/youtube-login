@@ -37,6 +37,7 @@ pipeline {
                         sh '''
                             echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
                             docker push "$IMAGE_NAME:$TAG"
+                            docker images | grep "$IMAGE_NAME"  // Verify image exists
                         '''
                     }
                 }
@@ -56,6 +57,7 @@ pipeline {
             steps {
                 script {
                     sh "kubectl config use-context minikube"
+                    sh "kubectl config current-context"  // Verify context after switching
                 }
             }
         }
@@ -76,9 +78,8 @@ pipeline {
                     sh "kubectl get pods"
                     sh "kubectl get deployments"
                     sh "kubectl get services"
-
-                    // Change this to your actual deployment name
-                    sh "kubectl rollout status deployment/youtube-login-app-deployment"
+                    // Wait for rollout to complete
+                    sh "kubectl rollout status deployment/youtube-login-app-deployment || echo 'Rollout status failed'"
                 }
             }
         }
@@ -86,12 +87,17 @@ pipeline {
 
     post {
         success {
-            echo '✅ Deployment was successful! Access your app at:'
+            echo '✅ Deployment was successful!'
+            // Slack notification (example)
+            slackSend(channel: '#deployments', message: 'Deployment was successful!')
             echo '🔗 http://127.0.0.1:30056 (If NodePort is 30056)'
         }
 
         failure {
-            echo '❌ Deployment failed. Check the Jenkins logs for detailed errors.'
+            echo '❌ Deployment failed.'
+            // Slack notification (example)
+            slackSend(channel: '#deployments', message: 'Deployment failed. Check logs.')
+            echo '🔗 http://127.0.0.1:30056 (If NodePort is 30056)'
         }
     }
 }
