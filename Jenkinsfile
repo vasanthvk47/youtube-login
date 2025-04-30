@@ -52,6 +52,16 @@ pipeline {
             }
         }
 
+        stage('Deploy Permissions to Kubernetes') {
+            steps {
+                script {
+                    // Apply ClusterRole and ClusterRoleBinding if needed
+                    sh "kubectl apply -f k8s/cluster-role.yaml --validate=false --insecure-skip-tls-verify=true"
+                    sh "kubectl apply -f k8s/cluster-role-binding.yaml --validate=false --insecure-skip-tls-verify=true"
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 script {
