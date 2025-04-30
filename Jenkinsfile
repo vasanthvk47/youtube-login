@@ -44,14 +44,31 @@ pipeline {
                     echo 'Deploying to Kubernetes...'
 
                     // Delete the existing deployment (if any)
-                    sh 'kubectl --kubeconfig=/home/vasanth47/.kube/config delete deployment student-app-deployment --insecure-skip-tls-verify=true'
-        
+                    sh 'kubectl --kubeconfig=${KUBECONFIG} delete deployment student-app-deployment --insecure-skip-tls-verify=true'
+
                     // Apply the new deployment
-                    sh 'kubectl --kubeconfig=/home/vasanth47/.kube/config apply -f k8s/deployment.yaml --insecure-skip-tls-verify=true'
-                    }
+                    sh 'kubectl --kubeconfig=${KUBECONFIG} apply -f k8s/deployment.yaml --insecure-skip-tls-verify=true'
                 }
             }
+        }
 
+        stage('Stop Deployment') {
+            steps {
+                script {
+                    echo 'Stopping the deployment (scaling down to 0 replicas)...'
+                    sh 'kubectl --kubeconfig=${KUBECONFIG} scale deployment student-app-deployment --replicas=0 --insecure-skip-tls-verify=true'
+                }
+            }
+        }
+
+        stage('Restart Deployment') {
+            steps {
+                script {
+                    echo 'Restarting the deployment (scaling back up to 1 replica)...'
+                    sh 'kubectl --kubeconfig=${KUBECONFIG} scale deployment student-app-deployment --replicas=1 --insecure-skip-tls-verify=true'
+                }
+            }
+        }
 
         stage('Get Service URL') {
             steps {
