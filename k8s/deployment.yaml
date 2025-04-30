@@ -16,4 +16,4 @@ spec:
       - name: student-app
         image: vasanth4747/student-college-animation:latest
         ports:
-        - containerPort: 80
+        - containerPort: 2020  # Change container port to 2020
