@@ -42,12 +42,16 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying to Kubernetes...'
-                    
-                    // Apply the deployment to Minikube (using the KUBECONFIG environment variable)
-                    sh 'kubectl --kubeconfig=${KUBECONFIG} apply -f k8s/deployment.yaml --insecure-skip-tls-verify=true'
+
+                    // Delete the existing deployment (if any)
+                    sh 'kubectl --kubeconfig=/home/vasanth47/.kube/config delete deployment student-app-deployment --insecure-skip-tls-verify=true'
+        
+                    // Apply the new deployment
+                    sh 'kubectl --kubeconfig=/home/vasanth47/.kube/config apply -f k8s/deployment.yaml --insecure-skip-tls-verify=true'
+                    }
                 }
             }
-        }
+
 
         stage('Get Service URL') {
             steps {
