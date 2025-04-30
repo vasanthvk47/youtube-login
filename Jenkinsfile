@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/vasanthvk47/student-college-animation.git'
+                git branch: 'main', url: 'https://github.com/vasanthvk47/student-college-animation.git'
             }
         }
 
@@ -37,9 +37,10 @@ pipeline {
                 script {
                     sh "kubectl apply -f k8s-deployment.yaml"
                     sh "kubectl apply -f service.yaml"
+                    sh "kubectl get pods"
+                    sh "kubectl get svc"
                 }
             }
         }
     }
 }
-
