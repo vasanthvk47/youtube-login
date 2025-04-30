@@ -36,8 +36,8 @@ pipeline {
                     echo "Deploying to Kubernetes..."
 
                     // Your kubectl commands to deploy the app
-                    sh "kubectl apply -f deployment.yaml"
-                    sh "kubectl apply -f service.yaml"
+                    sh "kubectl apply -f k8s/deployment.yaml"
+                    sh "kubectl apply -f k8s/service.yaml"
                     
                     // Retrieving the service URL from Minikube
                     def minikubeURL = sh(script: "minikube service youtube-login-app-service --url", returnStdout: true).trim()
