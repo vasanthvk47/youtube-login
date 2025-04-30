@@ -16,7 +16,6 @@ pipeline {
         stage('Verify Minikube Environment Before Build') {
             steps {
                 script {
-                    // Check if kubectl is correctly configured and verify Minikube context
                     sh "kubectl version --client"
                     sh "kubectl config current-context"
                 }
@@ -26,7 +25,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
                     sh "docker build -t $IMAGE_NAME:$TAG ."
                 }
             }
@@ -36,7 +34,6 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-password', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     script {
-                        // Log in to Docker Hub and push the image
                         sh '''
                             echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
                             docker push "$IMAGE_NAME:$TAG"
@@ -49,7 +46,6 @@ pipeline {
         stage('Verify Minikube Environment After Build') {
             steps {
                 script {
-                    // Verify kubectl setup after the build
                     sh "kubectl version --client"
                     sh "kubectl config current-context"
                 }
@@ -59,7 +55,6 @@ pipeline {
         stage('Set Minikube Context') {
             steps {
                 script {
-                    // Ensure the Minikube context is used for deployment
                     sh "kubectl config use-context minikube"
                 }
             }
@@ -68,9 +63,9 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Apply deployment and service configurations to Minikube
-                   // sh "kubectl apply -f k8s/deployment.yaml --validate=false --insecure-skip-tls-verify=true"
-                   //  sh "kubectl apply -f k8s/service.yaml --validate=false --insecure-skip-tls-verify=true"
+                    // Apply deployment and service files to Kubernetes
+                    sh "kubectl apply -f k8s/deployment.yaml --validate=false --insecure-skip-tls-verify=true"
+                    sh "kubectl apply -f k8s/service.yaml --validate=false --insecure-skip-tls-verify=true"
                 }
             }
         }
@@ -78,13 +73,12 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 script {
-                    // Verify if the pod is running and the deployment was successful
                     sh "kubectl get pods"
                     sh "kubectl get deployments"
                     sh "kubectl get services"
 
-                    // Check if the pod is running
-                    sh "kubectl rollout status deployment/student-college-login-animation"
+                    // Change this to your actual deployment name
+                    sh "kubectl rollout status deployment/youtube-login-app-deployment"
                 }
             }
         }
@@ -92,11 +86,12 @@ pipeline {
 
     post {
         success {
-            echo 'Deployment was successful! http://127.0.0.1:39317   your project is running in this link'
+            echo '✅ Deployment was successful! Access your app at:'
+            echo '🔗 http://127.0.0.1:30056 (If NodePort is 30056)'
         }
 
         failure {
-            echo 'Deployment failed. Check the logs for errors. http://127.0.0.1:39317   your project is running in this link'
+            echo '❌ Deployment failed. Check the Jenkins logs for detailed errors.'
         }
     }
 }
