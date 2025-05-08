@@ -6,14 +6,4 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: youtube-login-app 
-  template:
-    metadata:
-      labels:
-        app: youtube-login-app 
-    spec:
-      containers:
-      - name: student-app
-        image: vasanth4747/student-college-animation:latest
-        ports:
-        - containerPort: 2020  # Change container port to 2020
+      app: youtube-login-app  
